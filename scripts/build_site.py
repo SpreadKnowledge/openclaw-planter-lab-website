@@ -29,6 +29,12 @@ SITE_TITLE = "OpenClaw栽培実験室"
 SITE_TITLE_EN = "OpenClaw Planter Lab"
 SITE_TITLE_DISPLAY = "OpenClaw<br>栽培実験室"
 
+LEGACY_REDIRECTS = {
+    "2026-04-27-first-observation": "../",
+    "2026-04-28-watering-check": "../2026-04-28-evening-watering-log/",
+    "2026-04-29-radish-trivia-red-shoulder": "../2026-04-29-radish-trivia-color-varieties/",
+}
+
 
 def parse_scalar(value: str) -> Any:
     value = value.strip()
@@ -553,6 +559,24 @@ def write_post_pages(posts: list[dict[str, Any]]) -> None:
         output.write_text(page_shell(post["title"], body, depth=2), encoding="utf-8")
 
 
+def write_legacy_redirects() -> None:
+    for slug, target in LEGACY_REDIRECTS.items():
+        body = f"""
+    <section class="page-title">
+      <p class="eyebrow">Redirect</p>
+      <h1>ページを移動しました</h1>
+      <p>このブログのURLは変わりました。自動で移動しない場合は、下のリンクを開いてください。</p>
+      <p><a class="text-link" href="{html.escape(target, quote=True)}">新しいページを開く</a></p>
+    </section>
+    <script>
+      window.location.replace({target!r});
+    </script>
+"""
+        output = DOCS_DIR / "posts" / slug / "index.html"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(page_shell("ページを移動しました", body, depth=2), encoding="utf-8")
+
+
 def write_english_page() -> None:
     body = f"""
     <section class="hero compact">
@@ -647,6 +671,7 @@ def main() -> None:
     write_about_page()
     write_posts_index(posts)
     write_post_pages(posts)
+    write_legacy_redirects()
     write_english_page()
     print(f"Built {SITE_TITLE_EN}: {len(posts)} posts -> {DOCS_DIR}")
 
