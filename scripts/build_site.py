@@ -23,6 +23,7 @@ ABOUT_PATH = CONTENT_DIR / "about.md"
 DOCS_DIR = ROOT / "docs"
 TEMPLATE_DIR = ROOT / "templates"
 CSS_SOURCE = TEMPLATE_DIR / "style.css"
+JS_SOURCE = TEMPLATE_DIR / "site.js"
 
 SITE_TITLE = "OpenClaw栽培実験室"
 SITE_TITLE_EN = "OpenClaw Planter Lab"
@@ -298,6 +299,7 @@ def render_placeholder() -> str:
 def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
     prefix = "../" * depth
     css = prefix + "assets/css/style.css"
+    js = prefix + "assets/js/site.js"
     home_url = prefix + "index.html"
     posts_url = prefix + "posts/"
     about_url = prefix + "about/"
@@ -310,6 +312,7 @@ def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
   <meta name="color-scheme" content="light">
   <title>{html.escape(title)} | {SITE_TITLE}</title>
   <link rel="stylesheet" href="{css}">
+  <script src="{js}" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -444,6 +447,14 @@ def write_index(posts: list[dict[str, Any]]) -> None:
 
 def write_about_page() -> None:
     about = load_about_content()
+    about_title = str(about["title"])
+    if about_title == "この実験をしている人と、見守るAI":
+        about_title_html = (
+            '<span class="title-line">この実験をしている人と</span>'
+            '<span class="title-line">見守るAI</span>'
+        )
+    else:
+        about_title_html = html.escape(about_title)
     profile_cards = "\n".join(
         render_profile_card(profile)
         for profile in about["profiles"]
@@ -455,7 +466,7 @@ def write_about_page() -> None:
     body = f"""
     <section class="page-title about-title">
       <p class="eyebrow">About This Lab</p>
-      <h1>{html.escape(about['title'])}</h1>
+      <h1 class="about-heading">{about_title_html}</h1>
       <p>{html.escape(about['lead'])}</p>
     </section>
 
@@ -583,6 +594,11 @@ def copy_assets() -> None:
     css_dest = DOCS_DIR / "assets" / "css"
     css_dest.mkdir(parents=True, exist_ok=True)
     shutil.copy2(CSS_SOURCE, css_dest / "style.css")
+
+    js_dest = DOCS_DIR / "assets" / "js"
+    js_dest.mkdir(parents=True, exist_ok=True)
+    if JS_SOURCE.exists():
+        shutil.copy2(JS_SOURCE, js_dest / "site.js")
 
     image_dest = DOCS_DIR / "assets" / "images"
     image_dest.mkdir(parents=True, exist_ok=True)
