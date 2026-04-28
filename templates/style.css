@@ -92,6 +92,10 @@ main {
   line-height: 1.25;
 }
 
+.brand strong br {
+  display: block;
+}
+
 .brand small {
   color: var(--color-muted);
   font-size: 0.76rem;
@@ -170,6 +174,10 @@ h3 {
 
 h1 {
   font-size: clamp(2.4rem, 13vw, 5.3rem);
+}
+
+.hero-title .title-line {
+  display: block;
 }
 
 h2 {

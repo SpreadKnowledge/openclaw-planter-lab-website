@@ -26,6 +26,7 @@ CSS_SOURCE = TEMPLATE_DIR / "style.css"
 
 SITE_TITLE = "OpenClaw栽培実験室"
 SITE_TITLE_EN = "OpenClaw Planter Lab"
+SITE_TITLE_DISPLAY = "OpenClaw<br>栽培実験室"
 
 
 def parse_scalar(value: str) -> Any:
@@ -315,13 +316,13 @@ def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
     <a class="brand" href="{home_url}" aria-label="{SITE_TITLE}">
       <span class="brand-mark">OC</span>
       <span>
-        <strong>{SITE_TITLE}</strong>
+        <strong>{SITE_TITLE_DISPLAY}</strong>
         <small>{SITE_TITLE_EN}</small>
       </span>
     </a>
     <nav class="site-nav" aria-label="Primary navigation">
       <a href="{home_url}">Home</a>
-      <a href="{posts_url}">Logs</a>
+      <a href="{posts_url}">Blog</a>
       <a href="{about_url}">About</a>
       <a href="{en_url}">English</a>
     </nav>
@@ -363,26 +364,6 @@ def render_post_card(post: dict[str, Any], depth: int = 0) -> str:
 
 def write_index(posts: list[dict[str, Any]]) -> None:
     latest = posts[:5]
-    featured = posts[0] if posts else None
-    today_body = (
-        f"""
-      <div>
-        <div class="meta-row">
-          <time datetime="{html.escape(featured['date'])}">{html.escape(featured['date_label'])}</time>
-          <span class="status-pill {status_class(featured['status'])}">{html.escape(featured['status'])}</span>
-        </div>
-        <h2>{html.escape(featured['title'])}</h2>
-        <p>{html.escape(featured['summary'])}</p>
-        <a class="text-link" href="{featured['url']}">今日のログを読む</a>
-      </div>
-      <aside class="agent-note">
-        <span>OpenClaw Comment</span>
-        <p>{html.escape(featured['openclaw_comment'])}</p>
-      </aside>
-"""
-        if featured
-        else "<p>まだ投稿がありません。content/posts/ にMarkdownを追加すると最新ログが表示されます。</p>"
-    )
 
     gallery_items: list[str] = []
     for post in posts:
@@ -400,10 +381,10 @@ def write_index(posts: list[dict[str, Any]]) -> None:
     <section class="hero">
       <div class="hero-content">
         <p class="eyebrow">AI agent cultivation journal</p>
-        <h1>{SITE_TITLE}</h1>
+        <h1 class="hero-title"><span class="title-line">OpenClaw</span><span class="title-line">栽培実験室</span></h1>
         <p class="hero-lead">{SITE_TITLE_EN} は、AIエージェントがプランター栽培を観察し、日々の作業と気づきを静かに記録していく小さな実験室です。</p>
         <div class="hero-actions">
-          <a class="button primary" href="posts/">最新ログを見る</a>
+          <a class="button primary" href="posts/">ブログを見る</a>
           <a class="button ghost" href="about/">この実験について</a>
           <a class="button ghost" href="en/">English</a>
         </div>
@@ -429,16 +410,9 @@ def write_index(posts: list[dict[str, Any]]) -> None:
       </div>
     </section>
 
-    <section class="today-card">
-      <p class="eyebrow">Current Observation</p>
-      <div class="today-layout">
-{today_body}
-      </div>
-    </section>
-
     <section class="section-heading">
-      <p class="eyebrow">Recent Logs</p>
-      <h2>最新ログ</h2>
+      <p class="eyebrow">Blog</p>
+      <h2>ブログ</h2>
     </section>
     <section class="post-grid">
 {latest_html}
@@ -516,8 +490,8 @@ def write_posts_index(posts: list[dict[str, Any]]) -> None:
     cards = "\n".join(render_post_card(post, depth=1) for post in posts)
     body = f"""
     <section class="page-title">
-      <p class="eyebrow">Observation Archive</p>
-      <h1>投稿一覧</h1>
+      <p class="eyebrow">Blog Archive</p>
+      <h1>ブログ一覧</h1>
       <p>OpenClaw栽培実験室の観察ログを新しい順に並べています。</p>
     </section>
     <section class="post-list">
