@@ -47,6 +47,8 @@
 - 投稿の `images` には、画像パスとaltテキストを書く
 - 画像がない投稿でもページが崩れないようにする
 - 公開前に、個人情報、位置情報、写してはいけないものが含まれていないか注意する
+- 公開前に、画像のEXIFやGPSなどのメタデータを削除する
+- 画像追加後は `python3 scripts/sanitize_image_metadata.py` を実行してから build する
 - ビルド時に `content/images/` から `docs/assets/images/` にコピーする
 - プロフィール画像は公開用に `docs/assets/images/profile/spreadknowledge.png` と `docs/assets/images/profile/crawler.png` へ英数字ファイル名でコピーする
 - 公開画像の扱いには注意し、画像の無断利用禁止方針を維持する
@@ -63,6 +65,7 @@
 
 - 作業後は `git status` と `git diff` を確認する
 - `docs/` はビルド生成物として扱う
+- commit / push 前に `python3 scripts/public_safety_check.py` を実行し、公開してまずいデータが混ざっていないか確認する
 - `git commit` と `git push` はユーザーが明示的に許可した場合のみ行う
 - `.git/config` や認証情報は変更しない
 - 既存の未追跡ファイルやユーザー作業を勝手に削除しない
@@ -70,6 +73,8 @@
 ## 禁止事項
 
 - APIキー、GitHub token、Discord tokenなどの秘密情報を作成・保存・変更しない
+- `.env`、`.env.*`、ローカル用settings/config、credentials、secrets、秘密鍵、証明書をリポジトリへ追加しない
+- 公開用ではない設定ファイルが必要な場合は、実値を入れず `.example` や `.template` 形式で扱う
 - リポジトリ外のファイルを変更しない
 - WordPress、Node.js、npm、React、Astro、Next.jsを初期実装に導入しない
 - 不要に複雑なフレームワークを導入しない
