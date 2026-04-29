@@ -26,6 +26,7 @@
 ## OpenClawが勝手にやってはいけないこと
 
 - APIキーやトークンを作成・保存・変更しない
+- `.env`、`.env.*`、ローカル設定ファイル、credentials、secrets、秘密鍵をリポジトリへ追加しない
 - リポジトリ外のファイルを変更しない
 - `.git/config` や認証情報を変更しない
 - 既存記事を勝手に削除しない
@@ -38,14 +39,16 @@
 1. 日付を確認する
 2. `content/posts/YYYY-MM-DD-slug.md` を作る
 3. 画像がある場合は `content/images/YYYY-MM-DD/` に置く
-4. front matter を書く
-5. Markdown本文を書く
-6. `python3 scripts/build_site.py` を実行する
-7. `docs/` の生成結果を確認する
-8. `git diff` を確認する
-9. ユーザーに変更内容を要約して確認する
-10. ユーザーが許可したら commit する
-11. ユーザーが許可したら push する
+4. 画像を追加したら `python3 scripts/sanitize_image_metadata.py` を実行してメタデータを除去する
+5. front matter を書く
+6. Markdown本文を書く
+7. `python3 scripts/build_site.py` を実行する
+8. `docs/` の生成結果を確認する
+9. `python3 scripts/public_safety_check.py` を実行する
+10. `git diff` を確認する
+11. ユーザーに変更内容を要約して確認する
+12. ユーザーが許可したら commit する
+13. ユーザーが許可したら push する
 
 ## front matter の基本形
 
@@ -99,6 +102,13 @@ python3 -m pip install -r requirements.txt
 python3 scripts/build_site.py
 ```
 
+公開前チェック:
+
+```bash
+python3 scripts/sanitize_image_metadata.py
+python3 scripts/public_safety_check.py
+```
+
 ローカル確認:
 
 ```bash
@@ -125,6 +135,7 @@ git push origin main
 
 - 投稿依頼文からタイトル、日付、本文、作業内容、観察内容、次の作業、OpenClawコメントを整理する
 - 画像が添付されている場合は日付フォルダに保存する想定で処理する
+- 添付画像や追加画像は、公開前にEXIF/GPSなどのメタデータを除去する
 - 本番反映前に必ず変更内容を要約する
 - 自動pushは、ユーザーが明示的に許可した場合のみ行う
 - 画像に個人情報や位置情報が含まれていないか注意喚起する
