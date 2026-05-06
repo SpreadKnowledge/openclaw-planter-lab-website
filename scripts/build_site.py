@@ -372,15 +372,13 @@ def render_post_card(post: dict[str, Any], depth: int = 0) -> str:
 
 
 def write_index(posts: list[dict[str, Any]]) -> None:
-    latest = posts[:5]
+    latest = posts[:3]
 
     gallery_items: list[str] = []
     for post in posts:
-        for image in post["images"]:
-            gallery_items.append(render_image_card(image, 0))
-            if len(gallery_items) >= 6:
-                break
-        if len(gallery_items) >= 6:
+        if post["images"]:
+            gallery_items.append(render_image_card(post["images"][0], 0))
+        if len(gallery_items) >= 3:
             break
     gallery_html = "\n".join(gallery_items) if gallery_items else render_placeholder()
 
@@ -399,37 +397,36 @@ def write_index(posts: list[dict[str, Any]]) -> None:
         </div>
       </div>
       <div class="hero-panel" aria-label="Current lab status">
-        <span class="panel-label">Today</span>
+        <span class="panel-label">実験概要</span>
         <strong>水色の静かなラボで、植物とセンサーの変化を観察中。</strong>
         <p>GitHub Pagesで公開される、OpenClawのWebサイト保守・更新練習用デモです。</p>
       </div>
     </section>
 
-    <section class="section-grid">
-      <div class="section-copy">
+    <section class="section-copy about-overview">
         <p class="eyebrow">About</p>
         <h2>この実験について</h2>
         <p>人間またはOpenClawがMarkdownで栽培ログを書き、ローカルビルドで静的HTMLに変換します。観察、作業、画像、コメントを積み重ねながら、AIエージェントによるサイト更新の流れを検証します。</p>
         <p><a class="text-link" href="about/">運営者とクローラを見る</a></p>
-      </div>
-      <div class="lab-stats">
-        <div><span>{len(posts)}</span><small>logs</small></div>
-        <div><span>{sum(len(post['images']) for post in posts)}</span><small>images</small></div>
-        <div><span>Pages</span><small>GitHub /docs</small></div>
-      </div>
     </section>
 
-    <section class="section-heading">
-      <p class="eyebrow">Blog</p>
-      <h2>ブログ</h2>
+    <section class="section-heading section-heading-row">
+      <div>
+        <p class="eyebrow">Blog</p>
+        <h2>ブログ</h2>
+      </div>
+      <a class="text-link more-link" href="posts/">もっとみる</a>
     </section>
     <section class="post-grid">
 {latest_html}
     </section>
 
-    <section class="section-heading">
-      <p class="eyebrow">Gallery</p>
-      <h2>画像ギャラリー</h2>
+    <section class="section-heading section-heading-row">
+      <div>
+        <p class="eyebrow">Gallery</p>
+        <h2>画像ギャラリー</h2>
+      </div>
+      <a class="text-link more-link" href="gallery/">もっとみる</a>
     </section>
     <section class="gallery-grid">
 {gallery_html}
@@ -518,6 +515,27 @@ def write_posts_index(posts: list[dict[str, Any]]) -> None:
     output = DOCS_DIR / "posts" / "index.html"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(page_shell("投稿一覧", body, depth=1), encoding="utf-8")
+
+
+def write_gallery_index(posts: list[dict[str, Any]]) -> None:
+    gallery_items: list[str] = []
+    for post in posts:
+        for image in post["images"]:
+            gallery_items.append(render_image_card(image, depth=1))
+    gallery_html = "\n".join(gallery_items) if gallery_items else render_placeholder()
+    body = f"""
+    <section class="page-title">
+      <p class="eyebrow">Gallery Archive</p>
+      <h1>画像ギャラリー</h1>
+      <p>OpenClaw栽培実験室の観察写真を新しい投稿順に並べています。</p>
+    </section>
+    <section class="gallery-grid">
+{gallery_html}
+    </section>
+"""
+    output = DOCS_DIR / "gallery" / "index.html"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(page_shell("画像ギャラリー", body, depth=1), encoding="utf-8")
 
 
 def write_post_pages(posts: list[dict[str, Any]]) -> None:
@@ -670,6 +688,7 @@ def main() -> None:
     write_index(posts)
     write_about_page()
     write_posts_index(posts)
+    write_gallery_index(posts)
     write_post_pages(posts)
     write_legacy_redirects()
     write_english_page()
