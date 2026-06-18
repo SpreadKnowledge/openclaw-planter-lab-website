@@ -409,6 +409,19 @@ def render_experiment_link(experiment: dict[str, Any] | None, depth: int, label:
     )
 
 
+def render_quick_links(links: list[tuple[str, str]], depth: int, variant: str = "soft") -> str:
+    if not links:
+        return ""
+    prefix = relative_prefix(depth)
+    items = []
+    for label, href in links:
+        url = href if href.startswith(("http://", "https://", "/", "#")) else prefix + href
+        items.append(
+            f'<a class="quick-link {variant}" href="{html.escape(url, quote=True)}">{html.escape(label)}</a>'
+        )
+    return '<nav class="quick-links" aria-label="Page links">' + "".join(items) + "</nav>"
+
+
 def render_gallery_item_card(item: dict[str, Any], depth: int, show_experiment: bool = True) -> str:
     image = item["image"]
     post = item["post"]
@@ -425,6 +438,14 @@ def render_gallery_item_card(item: dict[str, Any], depth: int, show_experiment: 
             f'<a class="text-link" href="{html.escape(experiment_url, quote=True)}">{html.escape(experiment["title"])}</a>'
             "</p>"
         )
+    action_links = [
+        f'<a class="mini-link" href="{html.escape(post_url, quote=True)}">投稿を見る</a>'
+    ]
+    if experiment is not None:
+        experiment_url = relative_prefix(depth) + experiment["url"]
+        action_links.append(
+            f'<a class="mini-link" href="{html.escape(experiment_url, quote=True)}">実験ページへ</a>'
+        )
     return f"""
 <article class="gallery-detail-card">
   <a class="gallery-detail-media" href="{html.escape(post_url, quote=True)}">
@@ -438,6 +459,7 @@ def render_gallery_item_card(item: dict[str, Any], depth: int, show_experiment: 
     <h3><a href="{html.escape(post_url, quote=True)}">{html.escape(post['title'])}</a></h3>
     <p>{html.escape(image_alt)}</p>
     {experiment_html}
+    <div class="card-actions">{''.join(action_links)}</div>
   </div>
 </article>
 """
@@ -467,6 +489,10 @@ def render_experiment_card(experiment: dict[str, Any], depth: int = 0, link_targ
       <span>{experiment['post_count']}件の投稿</span>
       <span>{experiment['image_count']}枚の画像</span>
       <span>{html.escape(experiment['crop'])}</span>
+    </div>
+    <div class="card-actions">
+      <a class="mini-link" href="{html.escape(prefix + experiment['url'], quote=True)}">実験記録を見る</a>
+      <a class="mini-link" href="{html.escape(prefix + experiment['gallery_url'], quote=True)}">画像一覧を見る</a>
     </div>
   </div>
 </article>
@@ -542,6 +568,10 @@ def render_post_card(post: dict[str, Any], depth: int = 0) -> str:
     <p>{html.escape(post['summary'])}</p>
     {render_experiment_link(post.get('experiment'), depth)}
     {render_tags(post['tags'])}
+    <div class="card-actions">
+      <a class="mini-link" href="{html.escape(url, quote=True)}">投稿を読む</a>
+      {f'<a class="mini-link" href="{html.escape(prefix + post["experiment"]["url"], quote=True)}">実験を見る</a>' if post.get('experiment') else ''}
+    </div>
   </div>
 </article>
 """
@@ -592,6 +622,7 @@ def write_index(posts: list[dict[str, Any]], experiments: list[dict[str, Any]]) 
       </div>
       <a class="text-link more-link" href="experiments/">過去の実験を見る</a>
     </section>
+    {render_quick_links([('実験一覧へ', 'experiments/'), ('実験別ギャラリーへ', 'gallery/'), ('最新の投稿へ', 'posts/')], 0)}
     <section class="experiment-grid">
       {featured_experiment}
     </section>
@@ -699,7 +730,7 @@ def write_posts_index(posts: list[dict[str, Any]]) -> None:
       <p class="eyebrow">Blog Archive</p>
       <h1>ブログ一覧</h1>
       <p>OpenClaw栽培実験室の観察ログを新しい順に並べています。各投稿から所属実験も辿れます。</p>
-      <p><a class="text-link" href="../experiments/">実験一覧を見る</a></p>
+      {render_quick_links([('実験一覧を見る', 'experiments/'), ('ギャラリーを見る', 'gallery/'), ('ホームへ戻る', 'index.html')], 1)}
     </section>
     <section class="post-list">
 {cards}
@@ -717,6 +748,7 @@ def write_experiments_index(experiments: list[dict[str, Any]]) -> None:
       <p class="eyebrow">Experiments</p>
       <h1>実験一覧</h1>
       <p>栽培ログとギャラリーを、実験ごとにまとめて見返せるページです。</p>
+      {render_quick_links([('最新のブログを見る', 'posts/'), ('実験別ギャラリーへ', 'gallery/'), ('ホームへ戻る', 'index.html')], 1)}
     </section>
     <section class="experiment-grid">
 {cards}
@@ -754,6 +786,7 @@ def write_experiment_pages(experiments: list[dict[str, Any]]) -> None:
         <span>{experiment['image_count']}枚の画像</span>
         <span>{html.escape(experiment['crop'])}</span>
       </div>
+      {render_quick_links([('この実験の投稿へ', '#posts'), ('この実験の画像へ', '#gallery'), ('実験一覧へ戻る', 'experiments/')], 2)}
     </section>
 
     <section class="section-grid experiment-overview-grid">
@@ -773,7 +806,7 @@ def write_experiment_pages(experiments: list[dict[str, Any]]) -> None:
       </div>
       <a class="text-link more-link" href="../../posts/">ブログ一覧へ</a>
     </section>
-    <section class="post-list">
+    <section class="post-list" id="posts">
 {posts_html}
     </section>
 
@@ -784,7 +817,7 @@ def write_experiment_pages(experiments: list[dict[str, Any]]) -> None:
       </div>
       <a class="text-link more-link" href="../../gallery/experiments/{html.escape(experiment['slug'])}/">画像一覧へ</a>
     </section>
-    <section class="gallery-detail-grid">
+    <section class="gallery-detail-grid" id="gallery">
 {gallery_html}
     </section>
 """
@@ -809,6 +842,7 @@ def write_gallery_index(posts: list[dict[str, Any]], experiments: list[dict[str,
       <p class="eyebrow">Gallery Archive</p>
       <h1>画像ギャラリー</h1>
       <p>まず実験ごとに入り、その中で写真を辿れる構成にしました。下には全体の新しい順も残しています。</p>
+      {render_quick_links([('実験一覧へ', 'experiments/'), ('ブログ一覧へ', 'posts/'), ('ホームへ戻る', 'index.html')], 1)}
     </section>
 
     <section class="section-heading section-heading-row">
@@ -851,7 +885,7 @@ def write_experiment_gallery_pages(experiments: list[dict[str, Any]]) -> None:
         <span>{html.escape(experiment['period_label'])}</span>
       </div>
       <p>{html.escape(experiment['summary'])}</p>
-      <p><a class="text-link" href="../../../experiments/{html.escape(experiment['slug'])}/">実験ページへ戻る</a></p>
+      {render_quick_links([('実験ページへ戻る', f'experiments/{experiment["slug"]}/'), ('実験一覧へ', 'experiments/'), ('ギャラリートップへ', 'gallery/')], 3)}
     </section>
     <section class="gallery-detail-grid">
 {gallery_html}
@@ -889,6 +923,7 @@ def write_post_pages(posts: list[dict[str, Any]]) -> None:
         <p>{html.escape(post['summary'])}</p>
         {render_experiment_link(experiment, 2)}
         {render_tags(post['tags'])}
+        {render_quick_links([('投稿一覧へ', 'posts/'), ('実験ページへ', f'experiments/{experiment["slug"]}/') if experiment is not None else ('ホームへ', 'index.html'), ('この実験の画像へ', f'gallery/experiments/{experiment["slug"]}/') if experiment is not None else ('ギャラリーへ', 'gallery/')], 2)}
       </header>
       <div class="article-body">
 {post['body_html']}
