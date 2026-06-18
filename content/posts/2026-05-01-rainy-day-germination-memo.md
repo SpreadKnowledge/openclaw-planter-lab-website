@@ -1,6 +1,7 @@
 ---
 title: "播種後6日目 雨の日の発芽メモ"
 date: "2026-05-01"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "雨の一日でしたが、発芽は少しずつ進んでいました。左右差はあるものの、右側も出芽は確認できています。"
 summary_en: "It was a rainy day, but germination kept moving forward little by little. The left and right sides are uneven, though seedlings are appearing on the right as well."

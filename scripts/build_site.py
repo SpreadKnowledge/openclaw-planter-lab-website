@@ -18,6 +18,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT_DIR = ROOT / "content"
 POSTS_DIR = CONTENT_DIR / "posts"
+EXPERIMENTS_DIR = CONTENT_DIR / "experiments"
 IMAGES_DIR = CONTENT_DIR / "images"
 ABOUT_PATH = CONTENT_DIR / "about.md"
 DOCS_DIR = ROOT / "docs"
@@ -158,9 +159,13 @@ def markdown_to_html(markdown: str) -> str:
     return "\n".join(blocks)
 
 
+def relative_prefix(depth: int) -> str:
+    return "../" * depth
+
+
 def public_image_url(source_path: str, depth: int) -> str:
     clean_path = source_path.strip().replace("\\", "/")
-    prefix = "../" * depth
+    prefix = relative_prefix(depth)
     marker = "content/images/"
     if clean_path.startswith(marker):
         return prefix + "assets/images/" + clean_path[len(marker) :]
@@ -176,8 +181,30 @@ def format_date(value: str) -> str:
         return value
 
 
+def format_period(start: str, end: str) -> str:
+    if start and end:
+        return f"{format_date(start)} - {format_date(end)}"
+    if start:
+        return f"{format_date(start)} -"
+    if end:
+        return f"- {format_date(end)}"
+    return ""
+
+
 def post_slug(path: Path) -> str:
     return path.stem
+
+
+def normalize_images(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, dict)]
+
+
+def normalize_tags(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(tag) for tag in value]
 
 
 def load_posts() -> list[dict[str, Any]]:
@@ -187,12 +214,6 @@ def load_posts() -> list[dict[str, Any]]:
         slug = post_slug(path)
         date = str(meta.get("date", slug[:10]))
         title = str(meta.get("title", slug))
-        images = meta.get("images") or []
-        if not isinstance(images, list):
-            images = []
-        tags = meta.get("tags") or []
-        if not isinstance(tags, list):
-            tags = []
         posts.append(
             {
                 "path": path,
@@ -203,14 +224,51 @@ def load_posts() -> list[dict[str, Any]]:
                 "date_label": format_date(date),
                 "status": str(meta.get("status", "観察中")),
                 "summary": str(meta.get("summary", "")),
-                "tags": [str(tag) for tag in tags],
-                "images": images,
+                "tags": normalize_tags(meta.get("tags") or []),
+                "images": normalize_images(meta.get("images") or []),
+                "experiment_slug": str(meta.get("experiment", "")).strip(),
                 "openclaw_comment": str(meta.get("openclaw_comment", "")),
                 "body_html": markdown_to_html(body),
             }
         )
 
     return sorted(posts, key=lambda post: post["date"], reverse=True)
+
+
+def load_experiments() -> list[dict[str, Any]]:
+    experiments: list[dict[str, Any]] = []
+    if not EXPERIMENTS_DIR.exists():
+        return experiments
+
+    for path in sorted(EXPERIMENTS_DIR.glob("*.md")):
+        meta, body = parse_front_matter(path.read_text(encoding="utf-8"))
+        slug = path.stem
+        start_date = str(meta.get("start_date", ""))
+        end_date = str(meta.get("end_date", ""))
+        experiments.append(
+            {
+                "path": path,
+                "slug": slug,
+                "url": f"experiments/{slug}/",
+                "gallery_url": f"gallery/experiments/{slug}/",
+                "title": str(meta.get("title", slug)),
+                "crop": str(meta.get("crop", "")),
+                "start_date": start_date,
+                "end_date": end_date,
+                "period_label": format_period(start_date, end_date),
+                "status": str(meta.get("status", "進行中")),
+                "summary": str(meta.get("summary", "")),
+                "cover_image": str(meta.get("cover_image", "")).strip(),
+                "cover_alt": str(meta.get("cover_alt", "実験の代表写真")),
+                "body_html": markdown_to_html(body),
+                "posts": [],
+                "gallery_items": [],
+                "post_count": 0,
+                "image_count": 0,
+            }
+        )
+
+    return sorted(experiments, key=lambda experiment: experiment["start_date"], reverse=True)
 
 
 def load_about_content() -> dict[str, Any]:
@@ -243,11 +301,49 @@ def load_about_content() -> dict[str, Any]:
     return defaults
 
 
+def attach_experiments(posts: list[dict[str, Any]], experiments: list[dict[str, Any]]) -> None:
+    experiment_map = {experiment["slug"]: experiment for experiment in experiments}
+
+    for post in posts:
+        experiment = experiment_map.get(post["experiment_slug"])
+        post["experiment"] = experiment
+        post["gallery_items"] = []
+        if experiment is not None:
+            experiment["posts"].append(post)
+
+        for index, image in enumerate(post["images"], start=1):
+            item = {
+                "image": image,
+                "post": post,
+                "experiment": experiment,
+                "date": post["date"],
+                "date_label": post["date_label"],
+                "index": index,
+            }
+            post["gallery_items"].append(item)
+            if experiment is not None:
+                experiment["gallery_items"].append(item)
+
+    for experiment in experiments:
+        experiment["post_count"] = len(experiment["posts"])
+        experiment["image_count"] = len(experiment["gallery_items"])
+        if not experiment["cover_image"] and experiment["gallery_items"]:
+            experiment["cover_image"] = str(experiment["gallery_items"][0]["image"].get("path", ""))
+            experiment["cover_alt"] = str(experiment["gallery_items"][0]["image"].get("alt", experiment["cover_alt"]))
+
+
+def collect_gallery_items(posts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    for post in posts:
+        items.extend(post["gallery_items"])
+    return items
+
+
 def status_class(status: str) -> str:
     normalized = status.lower()
     if "注意" in normalized or "watch" in normalized:
         return "status-watch"
-    if "良好" in normalized or "ok" in normalized:
+    if "良好" in normalized or "ok" in normalized or "順調" in normalized or "完了" in normalized:
         return "status-good"
     return "status-neutral"
 
@@ -302,12 +398,89 @@ def render_placeholder() -> str:
     )
 
 
+def render_experiment_link(experiment: dict[str, Any] | None, depth: int, label: str = "所属実験") -> str:
+    if experiment is None:
+        return ""
+    url = relative_prefix(depth) + experiment["url"]
+    return (
+        '<p class="experiment-link">'
+        f'{html.escape(label)} <a class="text-link" href="{html.escape(url, quote=True)}">{html.escape(experiment["title"])}</a>'
+        "</p>"
+    )
+
+
+def render_gallery_item_card(item: dict[str, Any], depth: int, show_experiment: bool = True) -> str:
+    image = item["image"]
+    post = item["post"]
+    experiment = item.get("experiment")
+    image_path = str(image.get("path", ""))
+    image_alt = str(image.get("alt", "栽培ログ画像"))
+    image_url = public_image_url(image_path, depth)
+    post_url = relative_prefix(depth) + post["url"]
+    experiment_html = ""
+    if show_experiment and experiment is not None:
+        experiment_url = relative_prefix(depth) + experiment["url"]
+        experiment_html = (
+            '<p class="gallery-card-experiment">'
+            f'<a class="text-link" href="{html.escape(experiment_url, quote=True)}">{html.escape(experiment["title"])}</a>'
+            "</p>"
+        )
+    return f"""
+<article class="gallery-detail-card">
+  <a class="gallery-detail-media" href="{html.escape(post_url, quote=True)}">
+    <img src="{html.escape(image_url, quote=True)}" alt="{html.escape(image_alt, quote=True)}" loading="lazy">
+  </a>
+  <div class="gallery-detail-body">
+    <div class="meta-row">
+      <time datetime="{html.escape(item['date'])}">{html.escape(item['date_label'])}</time>
+      <span class="gallery-index">画像 {item['index']}</span>
+    </div>
+    <h3><a href="{html.escape(post_url, quote=True)}">{html.escape(post['title'])}</a></h3>
+    <p>{html.escape(image_alt)}</p>
+    {experiment_html}
+  </div>
+</article>
+"""
+
+
+def render_experiment_card(experiment: dict[str, Any], depth: int = 0, link_target: str = "detail") -> str:
+    prefix = relative_prefix(depth)
+    url = prefix + (experiment["gallery_url"] if link_target == "gallery" else experiment["url"])
+    cover_html = render_placeholder()
+    if experiment["cover_image"]:
+        cover_html = render_image_card(
+            {"path": experiment["cover_image"], "alt": experiment["cover_alt"]},
+            depth,
+        )
+
+    return f"""
+<article class="experiment-card">
+  <a class="experiment-card-media" href="{html.escape(url, quote=True)}">{cover_html}</a>
+  <div class="experiment-card-body">
+    <div class="meta-row">
+      <span class="status-pill {status_class(experiment['status'])}">{html.escape(experiment['status'])}</span>
+      <span>{html.escape(experiment['period_label'])}</span>
+    </div>
+    <h3><a href="{html.escape(url, quote=True)}">{html.escape(experiment['title'])}</a></h3>
+    <p>{html.escape(experiment['summary'])}</p>
+    <div class="experiment-stats">
+      <span>{experiment['post_count']}件の投稿</span>
+      <span>{experiment['image_count']}枚の画像</span>
+      <span>{html.escape(experiment['crop'])}</span>
+    </div>
+  </div>
+</article>
+"""
+
+
 def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
-    prefix = "../" * depth
+    prefix = relative_prefix(depth)
     css = prefix + "assets/css/style.css"
     js = prefix + "assets/js/site.js"
     home_url = prefix + "index.html"
     posts_url = prefix + "posts/"
+    experiments_url = prefix + "experiments/"
+    gallery_url = prefix + "gallery/"
     about_url = prefix + "about/"
     en_url = prefix + "en/"
     return f"""<!doctype html>
@@ -332,6 +505,8 @@ def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
     <nav class="site-nav" aria-label="Primary navigation">
       <a href="{home_url}">Home</a>
       <a href="{posts_url}">Blog</a>
+      <a href="{experiments_url}">Experiments</a>
+      <a href="{gallery_url}">Gallery</a>
       <a href="{about_url}">About</a>
       <a href="{en_url}">English</a>
     </nav>
@@ -349,7 +524,7 @@ def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
 
 
 def render_post_card(post: dict[str, Any], depth: int = 0) -> str:
-    prefix = "../" * depth
+    prefix = relative_prefix(depth)
     url = prefix + post["url"]
     image_html = render_placeholder()
     if post["images"]:
@@ -365,24 +540,23 @@ def render_post_card(post: dict[str, Any], depth: int = 0) -> str:
     </div>
     <h3><a href="{url}">{html.escape(post['title'])}</a></h3>
     <p>{html.escape(post['summary'])}</p>
+    {render_experiment_link(post.get('experiment'), depth)}
     {render_tags(post['tags'])}
   </div>
 </article>
 """
 
 
-def write_index(posts: list[dict[str, Any]]) -> None:
-    latest = posts[:3]
-
-    gallery_items: list[str] = []
-    for post in posts:
-        if post["images"]:
-            gallery_items.append(render_image_card(post["images"][0], 0))
-        if len(gallery_items) >= 3:
-            break
-    gallery_html = "\n".join(gallery_items) if gallery_items else render_placeholder()
-
-    latest_html = "\n".join(render_post_card(post) for post in latest)
+def write_index(posts: list[dict[str, Any]], experiments: list[dict[str, Any]]) -> None:
+    latest_posts = posts[:3]
+    gallery_items = collect_gallery_items(posts)[:3]
+    latest_html = "\n".join(render_post_card(post) for post in latest_posts)
+    gallery_html = (
+        "\n".join(render_image_card(item["image"], 0) for item in gallery_items)
+        if gallery_items
+        else render_placeholder()
+    )
+    featured_experiment = render_experiment_card(experiments[0]) if experiments else ""
 
     body = f"""
     <section class="hero">
@@ -392,6 +566,7 @@ def write_index(posts: list[dict[str, Any]]) -> None:
         <p class="hero-lead">{SITE_TITLE_EN} は、AIエージェントがプランター栽培を観察し、日々の作業と気づきを静かに記録していく小さな実験室です。</p>
         <div class="hero-actions">
           <a class="button primary" href="posts/">ブログを見る</a>
+          <a class="button ghost" href="experiments/">実験一覧を見る</a>
           <a class="button ghost" href="about/">この実験について</a>
           <a class="button ghost" href="en/">English</a>
         </div>
@@ -404,10 +579,21 @@ def write_index(posts: list[dict[str, Any]]) -> None:
     </section>
 
     <section class="section-copy about-overview">
-        <p class="eyebrow">About</p>
-        <h2>この実験について</h2>
-        <p>人間またはOpenClawがMarkdownで栽培ログを書き、ローカルビルドで静的HTMLに変換します。観察、作業、画像、コメントを積み重ねながら、AIエージェントによるサイト更新の流れを検証します。</p>
-        <p><a class="text-link" href="about/">運営者とクローラを見る</a></p>
+      <p class="eyebrow">About</p>
+      <h2>この実験について</h2>
+      <p>人間またはOpenClawがMarkdownで栽培ログを書き、ローカルビルドで静的HTMLに変換します。観察、作業、画像、コメントを積み重ねながら、AIエージェントによるサイト更新の流れを検証します。</p>
+      <p><a class="text-link" href="about/">運営者とクローラを見る</a></p>
+    </section>
+
+    <section class="section-heading section-heading-row">
+      <div>
+        <p class="eyebrow">Experiments</p>
+        <h2>実験ごとに見る</h2>
+      </div>
+      <a class="text-link more-link" href="experiments/">過去の実験を見る</a>
+    </section>
+    <section class="experiment-grid">
+      {featured_experiment}
     </section>
 
     <section class="section-heading section-heading-row">
@@ -415,7 +601,10 @@ def write_index(posts: list[dict[str, Any]]) -> None:
         <p class="eyebrow">Blog</p>
         <h2>ブログ</h2>
       </div>
-      <a class="text-link more-link" href="posts/">もっとみる</a>
+      <div class="section-links">
+        <a class="text-link more-link" href="experiments/">実験別に見る</a>
+        <a class="text-link more-link" href="posts/">もっとみる</a>
+      </div>
     </section>
     <section class="post-grid">
 {latest_html}
@@ -426,7 +615,10 @@ def write_index(posts: list[dict[str, Any]]) -> None:
         <p class="eyebrow">Gallery</p>
         <h2>画像ギャラリー</h2>
       </div>
-      <a class="text-link more-link" href="gallery/">もっとみる</a>
+      <div class="section-links">
+        <a class="text-link more-link" href="gallery/">実験別に見る</a>
+        <a class="text-link more-link" href="gallery/">もっとみる</a>
+      </div>
     </section>
     <section class="gallery-grid">
 {gallery_html}
@@ -506,7 +698,8 @@ def write_posts_index(posts: list[dict[str, Any]]) -> None:
     <section class="page-title">
       <p class="eyebrow">Blog Archive</p>
       <h1>ブログ一覧</h1>
-      <p>OpenClaw栽培実験室の観察ログを新しい順に並べています。</p>
+      <p>OpenClaw栽培実験室の観察ログを新しい順に並べています。各投稿から所属実験も辿れます。</p>
+      <p><a class="text-link" href="../experiments/">実験一覧を見る</a></p>
     </section>
     <section class="post-list">
 {cards}
@@ -517,25 +710,156 @@ def write_posts_index(posts: list[dict[str, Any]]) -> None:
     output.write_text(page_shell("投稿一覧", body, depth=1), encoding="utf-8")
 
 
-def write_gallery_index(posts: list[dict[str, Any]]) -> None:
-    gallery_items: list[str] = []
-    for post in posts:
-        for image in post["images"]:
-            gallery_items.append(render_image_card(image, depth=1))
-    gallery_html = "\n".join(gallery_items) if gallery_items else render_placeholder()
+def write_experiments_index(experiments: list[dict[str, Any]]) -> None:
+    cards = "\n".join(render_experiment_card(experiment, depth=1) for experiment in experiments)
+    body = f"""
+    <section class="page-title">
+      <p class="eyebrow">Experiments</p>
+      <h1>実験一覧</h1>
+      <p>栽培ログとギャラリーを、実験ごとにまとめて見返せるページです。</p>
+    </section>
+    <section class="experiment-grid">
+{cards}
+    </section>
+"""
+    output = DOCS_DIR / "experiments" / "index.html"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(page_shell("実験一覧", body, depth=1), encoding="utf-8")
+
+
+def write_experiment_pages(experiments: list[dict[str, Any]]) -> None:
+    for experiment in experiments:
+        posts_html = (
+            "\n".join(render_post_card(post, depth=2) for post in experiment["posts"])
+            if experiment["posts"]
+            else '<p>この実験に紐づく投稿はまだありません。</p>'
+        )
+        gallery_preview = experiment["gallery_items"][:6]
+        gallery_html = (
+            "\n".join(render_gallery_item_card(item, depth=2, show_experiment=False) for item in gallery_preview)
+            if gallery_preview
+            else render_placeholder()
+        )
+        body = f"""
+    <section class="page-title experiment-page-title">
+      <p class="eyebrow">Experiment Record</p>
+      <h1>{html.escape(experiment['title'])}</h1>
+      <div class="meta-row">
+        <span class="status-pill {status_class(experiment['status'])}">{html.escape(experiment['status'])}</span>
+        <span>{html.escape(experiment['period_label'])}</span>
+      </div>
+      <p>{html.escape(experiment['summary'])}</p>
+      <div class="experiment-stats experiment-stats-wide">
+        <span>{experiment['post_count']}件の投稿</span>
+        <span>{experiment['image_count']}枚の画像</span>
+        <span>{html.escape(experiment['crop'])}</span>
+      </div>
+    </section>
+
+    <section class="section-grid experiment-overview-grid">
+      <div class="section-copy">
+        {experiment['body_html']}
+      </div>
+      <aside class="agent-note">
+        <span>Gallery</span>
+        <p><a class="text-link" href="../../gallery/experiments/{html.escape(experiment['slug'])}/">この実験の画像一覧を見る</a></p>
+      </aside>
+    </section>
+
+    <section class="section-heading section-heading-row">
+      <div>
+        <p class="eyebrow">Posts</p>
+        <h2>この実験の投稿</h2>
+      </div>
+      <a class="text-link more-link" href="../../posts/">ブログ一覧へ</a>
+    </section>
+    <section class="post-list">
+{posts_html}
+    </section>
+
+    <section class="section-heading section-heading-row">
+      <div>
+        <p class="eyebrow">Gallery</p>
+        <h2>この実験の画像</h2>
+      </div>
+      <a class="text-link more-link" href="../../gallery/experiments/{html.escape(experiment['slug'])}/">画像一覧へ</a>
+    </section>
+    <section class="gallery-detail-grid">
+{gallery_html}
+    </section>
+"""
+        output = DOCS_DIR / "experiments" / experiment["slug"] / "index.html"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(page_shell(experiment["title"], body, depth=2), encoding="utf-8")
+
+
+def write_gallery_index(posts: list[dict[str, Any]], experiments: list[dict[str, Any]]) -> None:
+    experiment_cards = "\n".join(
+        render_experiment_card(experiment, depth=1, link_target="gallery")
+        for experiment in experiments
+    )
+    gallery_items = collect_gallery_items(posts)
+    gallery_html = (
+        "\n".join(render_gallery_item_card(item, depth=1) for item in gallery_items)
+        if gallery_items
+        else render_placeholder()
+    )
     body = f"""
     <section class="page-title">
       <p class="eyebrow">Gallery Archive</p>
       <h1>画像ギャラリー</h1>
-      <p>OpenClaw栽培実験室の観察写真を新しい投稿順に並べています。</p>
+      <p>まず実験ごとに入り、その中で写真を辿れる構成にしました。下には全体の新しい順も残しています。</p>
     </section>
-    <section class="gallery-grid">
+
+    <section class="section-heading section-heading-row">
+      <div>
+        <p class="eyebrow">By Experiment</p>
+        <h2>実験別ギャラリー</h2>
+      </div>
+      <a class="text-link more-link" href="../experiments/">実験一覧へ</a>
+    </section>
+    <section class="experiment-grid">
+{experiment_cards}
+    </section>
+
+    <section class="section-heading">
+      <p class="eyebrow">Latest Images</p>
+      <h2>最新順の画像一覧</h2>
+    </section>
+    <section class="gallery-detail-grid">
 {gallery_html}
     </section>
 """
     output = DOCS_DIR / "gallery" / "index.html"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(page_shell("画像ギャラリー", body, depth=1), encoding="utf-8")
+
+
+def write_experiment_gallery_pages(experiments: list[dict[str, Any]]) -> None:
+    for experiment in experiments:
+        gallery_html = (
+            "\n".join(render_gallery_item_card(item, depth=3, show_experiment=False) for item in experiment["gallery_items"])
+            if experiment["gallery_items"]
+            else render_placeholder()
+        )
+        body = f"""
+    <section class="page-title experiment-page-title">
+      <p class="eyebrow">Experiment Gallery</p>
+      <h1>{html.escape(experiment['title'])}の画像一覧</h1>
+      <div class="meta-row">
+        <span class="status-pill {status_class(experiment['status'])}">{html.escape(experiment['status'])}</span>
+        <span>{html.escape(experiment['period_label'])}</span>
+      </div>
+      <p>{html.escape(experiment['summary'])}</p>
+      <p><a class="text-link" href="../../../experiments/{html.escape(experiment['slug'])}/">実験ページへ戻る</a></p>
+    </section>
+    <section class="gallery-detail-grid">
+{gallery_html}
+    </section>
+"""
+        output = DOCS_DIR / "gallery" / "experiments" / experiment["slug"] / "index.html"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(page_shell(f"{experiment['title']}の画像一覧", body, depth=3), encoding="utf-8")
 
 
 def write_post_pages(posts: list[dict[str, Any]]) -> None:
@@ -545,6 +869,14 @@ def write_post_pages(posts: list[dict[str, Any]]) -> None:
             if post["images"]
             else render_placeholder()
         )
+        experiment = post.get("experiment")
+        experiment_gallery_link = ""
+        if experiment is not None:
+            experiment_gallery_link = (
+                '<p><a class="text-link" href="../../gallery/experiments/'
+                + html.escape(experiment["slug"])
+                + '/">この実験の画像一覧を見る</a></p>'
+            )
         body = f"""
     <article class="article">
       <header class="article-header">
@@ -555,6 +887,7 @@ def write_post_pages(posts: list[dict[str, Any]]) -> None:
         </div>
         <h1>{html.escape(post['title'])}</h1>
         <p>{html.escape(post['summary'])}</p>
+        {render_experiment_link(experiment, 2)}
         {render_tags(post['tags'])}
       </header>
       <div class="article-body">
@@ -562,6 +895,7 @@ def write_post_pages(posts: list[dict[str, Any]]) -> None:
       </div>
       <section class="article-gallery">
         <h2>画像ギャラリー</h2>
+        {experiment_gallery_link}
         <div class="gallery-grid">
 {images_html}
         </div>
@@ -672,8 +1006,10 @@ def prepare_docs() -> None:
     if DOCS_DIR.exists():
         shutil.rmtree(DOCS_DIR)
     (DOCS_DIR / "posts").mkdir(parents=True, exist_ok=True)
-    (DOCS_DIR / "en").mkdir(parents=True, exist_ok=True)
     (DOCS_DIR / "about").mkdir(parents=True, exist_ok=True)
+    (DOCS_DIR / "en").mkdir(parents=True, exist_ok=True)
+    (DOCS_DIR / "experiments").mkdir(parents=True, exist_ok=True)
+    (DOCS_DIR / "gallery" / "experiments").mkdir(parents=True, exist_ok=True)
     (DOCS_DIR / "assets" / "js").mkdir(parents=True, exist_ok=True)
     (DOCS_DIR / "assets" / "images").mkdir(parents=True, exist_ok=True)
     (DOCS_DIR / ".nojekyll").write_text("", encoding="utf-8")
@@ -685,14 +1021,19 @@ def main() -> None:
     prepare_docs()
     copy_assets()
     posts = load_posts()
-    write_index(posts)
+    experiments = load_experiments()
+    attach_experiments(posts, experiments)
+    write_index(posts, experiments)
     write_about_page()
     write_posts_index(posts)
-    write_gallery_index(posts)
+    write_experiments_index(experiments)
+    write_experiment_pages(experiments)
+    write_gallery_index(posts, experiments)
+    write_experiment_gallery_pages(experiments)
     write_post_pages(posts)
     write_legacy_redirects()
     write_english_page()
-    print(f"Built {SITE_TITLE_EN}: {len(posts)} posts -> {DOCS_DIR}")
+    print(f"Built {SITE_TITLE_EN}: {len(posts)} posts, {len(experiments)} experiments -> {DOCS_DIR}")
 
 
 if __name__ == "__main__":

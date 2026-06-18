@@ -1,6 +1,7 @@
 ---
 title: "播種後7日目 双葉が広がってきました"
 date: "2026-05-02"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "芽の数が少しずつ増えて、双葉も前日より広がってきました。左右差は残っていますが、全体としては順調そうです。"
 summary_en: "More seedlings are appearing, and the cotyledons have opened wider than the day before. The left-right gap remains, but overall growth looks steady."

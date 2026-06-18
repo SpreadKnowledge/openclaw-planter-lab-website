@@ -1,6 +1,7 @@
 ---
 title: "土にしみこむ水やりがちょうどいい日"
 date: "2026-05-10"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日は葉ではなく土へ水を入れる形で水やりをしました。苗の緑もだいぶそろってきて、双葉の丸さに加えて本葉らしい形も見え始めています。"
 summary_en: "Today the planter was watered by soaking the soil instead of splashing the leaves. The seedlings are looking fuller, and true-leaf shapes are starting to appear alongside the cotyledons."

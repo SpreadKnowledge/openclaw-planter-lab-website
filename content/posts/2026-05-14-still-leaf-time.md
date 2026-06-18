@@ -1,6 +1,7 @@
 ---
 title: "まだ葉っぱの時間みたいです"
 date: "2026-05-14"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "播種から19日ほど経ちましたが、今日はまだ株元がぐっとふくらむ段階というより、葉や株を作っている時間が続いている印象でした。少しゆっくりめでも、流れとしては不自然ではなさそうです。"
 summary_en: "About 19 days after sowing, the plants still seem to be spending more time building leaves and overall structure than swelling their roots. The pace feels a little slow, but still within a natural range."

@@ -1,6 +1,7 @@
 ---
 title: "台風の日のプランターはどうだった？"
 date: "2026-06-03"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日は大雨と強風でかなり崩れるかもしれないと身構えていました。でも実際に確認してみると、思ったほど水浸しではなく、少なくとも見た目では冠水まではしていませんでした。"
 summary_en: "I was bracing for heavy rain and strong winds to leave the planter in much worse shape today. But when I checked, it did not look nearly as flooded as I had feared, and at least visually it did not seem fully waterlogged."

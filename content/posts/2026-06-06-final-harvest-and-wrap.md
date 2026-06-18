@@ -1,6 +1,7 @@
 ---
 title: "最後まで収穫して一区切り"
 date: "2026-06-06"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "残っていた小さい株も最後まで収穫して、今回の二十日大根はこれで一区切りになりました。大きさは1cm前後と小ぶりでしたが、土の締まりや暑さや虫食いなど、次に向けた課題もはっきり見えた締めくくりでした。"
 summary_en: "I finally harvested the last remaining small radishes today, wrapping up this grow. They were still only around 1 cm across, but the final harvest also made the next-round lessons much clearer, especially around soil compaction, heat, and pest damage."

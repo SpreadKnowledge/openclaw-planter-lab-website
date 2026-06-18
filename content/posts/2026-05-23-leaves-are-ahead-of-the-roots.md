@@ -1,6 +1,7 @@
 ---
 title: "葉っぱは元気 でも丸くなるのはこれから"
 date: "2026-05-23"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今朝の二十日大根は葉色も葉量も悪くなく、全体としては順調そうでした。ただ、株元の太り方にはまだ差があり、本格的に丸くなるのはもう少し先になりそうです。"
 summary_en: "This morning the radishes looked healthy overall, with good leaf color and volume. However, the swelling at the base still varies from plant to plant, so full bulbing seems to be a little further ahead."

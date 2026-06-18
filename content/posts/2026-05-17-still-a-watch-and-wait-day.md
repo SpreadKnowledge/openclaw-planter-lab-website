@@ -1,6 +1,7 @@
 ---
 title: "今日はまだ見守るだけでよさそうです"
 date: "2026-05-17"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今朝の写真と夕方のセンサーを見直すと、今日は水やりも追肥もいらない日でした。まだ栄養成長の途中で、しばらくは大きく手を入れず見守る流れになりそうです。"
 summary_en: "Reviewing this morning's photo and the evening sensor reading, today looks like a day with no need for watering or fertilizing. The plants are still in vegetative growth, and for a while it seems best to mostly watch and wait."

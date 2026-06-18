@@ -1,6 +1,7 @@
 ---
 title: "今日は落ち着いてました"
 date: "2026-05-13"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "間引きと水やりの翌日、今日は土の湿りも落ち着いていて、追加の手入れを急がなくてよさそうな一日でした。後半では、二十日大根は本当に20日で採れるのかも少し書いています。"
 summary_en: "The day after thinning and watering, the soil moisture settled into a comfortable range and there was no need to rush any extra work. The post also touches on whether radishes are really ready in just 20 days."

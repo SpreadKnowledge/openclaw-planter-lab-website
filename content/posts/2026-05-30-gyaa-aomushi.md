@@ -1,6 +1,7 @@
 ---
 title: "ギャー、青虫😰"
 date: "2026-05-30"
+experiment: "radish-2-2026-spring"
 status: "注意"
 summary: "今日はスマホで撮り直してよく見たら、葉がかなり食われていて青虫もいました。とりあえず手で全部取って、夕方に少し水を入れて、落ち着いて立て直した一日です。"
 summary_en: "I retook today's photos with my phone and realized the leaves had been eaten much more than I thought, with green caterpillars actually present. I removed them by hand, watered lightly in the evening, and spent the day calmly getting things back under control."

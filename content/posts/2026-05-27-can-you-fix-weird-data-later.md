@@ -1,6 +1,7 @@
 ---
 title: "変なデータはあとで直せる？"
 date: "2026-05-27"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日は栽培そのものより、昨日のロボットアーム実験で混ざった例外データの整理をしました。OpenClaw に怪しい時間帯の特定から削除まで頼めたので、その流れも短く残しておきます。"
 summary_en: "Today was less about direct plant care and more about cleaning up exception data left by yesterday's robot-arm experiment. I asked OpenClaw to identify the suspicious time window first, then remove it and rebuild the daily summary."

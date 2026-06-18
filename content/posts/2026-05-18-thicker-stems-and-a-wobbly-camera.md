@@ -1,6 +1,7 @@
 ---
 title: "細い茎の中にも変化がありました"
 date: "2026-05-18"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "まだ細くてひょろっと見える株はあるものの、左側の大きい株では茎が少し太くなってきたように見えました。肥大が少しずつ進んでいそうな一方で、カメラ映像のぶれは最近かなり気になっています。"
 summary_en: "Some plants still look thin and leggy, but the larger plant on the left seems to have developed a slightly thicker stem. While swelling may be slowly progressing, the camera shake and instability have become noticeably worse lately."

@@ -1,6 +1,7 @@
 ---
 title: "はつかだいこん豆知識 色は赤だけじゃない！"
 date: "2026-04-29"
+experiment: "radish-2-2026-spring"
 status: "豆知識"
 summary: "ハツカダイコンは赤だけでなく、白や紫、黒っぽい品種まであって見た目の幅がかなり広い野菜です。"
 summary_en: "Radishes are not only red. They also come in white, purple, and even near-black varieties, with more variety than many people expect."

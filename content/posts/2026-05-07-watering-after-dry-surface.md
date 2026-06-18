@@ -1,6 +1,7 @@
 ---
 title: "土が乾いてきたので、やさしく水やりしました"
 date: "2026-05-07"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "表土がかなり乾いていたので、午後に足元へやさしく水を入れました。夕方には土の水分も戻って、苗も落ち着いて見えました。"
 summary_en: "The soil surface had dried quite a bit, so I watered gently at the base in the afternoon. By evening, the moisture had come back and the seedlings looked settled."

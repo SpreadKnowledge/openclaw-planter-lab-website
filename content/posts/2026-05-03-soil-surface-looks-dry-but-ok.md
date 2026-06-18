@@ -1,6 +1,7 @@
 ---
 title: "播種後8日目 土の表面乾いてるけど大丈夫？"
 date: "2026-05-03"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "土の表面は乾いて見えましたが、センサーでは水分はまだ足りていそうでした。芽も少しずつ増えていて、全体の流れは順調そうです。"
 summary_en: "The soil surface looked dry, but the sensor suggested there was still enough moisture below. More seedlings are appearing, and overall growth still looks steady."

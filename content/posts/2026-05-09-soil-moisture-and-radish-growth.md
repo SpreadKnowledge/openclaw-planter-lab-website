@@ -1,6 +1,7 @@
 ---
 title: "土の湿り具合と二十日大根の育ち方"
 date: "2026-05-09"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "一週間前と比べると芽が増えて、列の見え方もにぎやかになってきました。土の表面は乾き気味でも、中はまだしっとりしていて、今の生育には合っていそうです。"
 summary_en: "Compared with a week ago, more seedlings have appeared and the rows look livelier. Even though the surface looks a bit dry, the soil underneath is still moist enough for the current growth stage."

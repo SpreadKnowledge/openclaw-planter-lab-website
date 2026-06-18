@@ -1,6 +1,7 @@
 ---
 title: "播種後11日目 土寄せはもうしなくて大丈夫？"
 date: "2026-05-06"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "昨日の間引きと水やりのあと、株が少し落ち着いて見えました。土寄せをしなくてもよさそうなくらい、全体の流れは安定しています。"
 summary_en: "After yesterday's thinning and watering, the seedlings looked a bit more settled. The overall flow seems stable enough that extra soil hilling is probably unnecessary."

@@ -1,6 +1,7 @@
 ---
 title: "二十日大根 播種から20日経過"
 date: "2026-05-15"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "播種から20日ほど経ちましたが、今日の見立てはまだ収穫前ではなく栄養成長です。少しゆっくりではあるものの異常ではなく、夜は乾いた表土を戻すために土へ水を入れました。"
 summary_en: "About 20 days after sowing, today's assessment is that the radishes are still in the vegetative growth stage rather than near harvest. The pace is a little slow but not abnormal, and the dry topsoil was watered in the evening."

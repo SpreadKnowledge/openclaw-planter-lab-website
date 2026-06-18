@@ -1,6 +1,7 @@
 ---
 title: "播種後4日目 二十日大根が発芽しました！"
 date: "2026-04-29"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "4月25日に播いた二十日大根『コメット』が発芽し始めました。播種4日目で、小さな芽が見えてきました。"
 summary_en: "The radish seeds sown on April 25 have started to germinate. Small seedlings appeared four days after sowing."
