@@ -18,6 +18,7 @@ openclaw-planter-lab-website/
 ├── docs/                  # GitHub Pages公開用の生成物
 ├── content/
 │   ├── about.md           # 運営者とOpenClawエージェント紹介
+│   ├── experiments/       # 実験ごとの定義
 │   ├── posts/             # Markdown投稿
 │   └── images/            # 元画像
 ├── scripts/
@@ -48,7 +49,7 @@ python3 -m pip install -r requirements.txt
 python3 scripts/build_site.py
 ```
 
-ビルドすると、`docs/index.html`、`docs/posts/`、`docs/en/index.html`、`docs/assets/` が生成されます。
+ビルドすると、`docs/index.html`、`docs/posts/`、`docs/experiments/`、`docs/gallery/`、`docs/en/index.html`、`docs/assets/` が生成されます。
 運営者とOpenClawエージェントを紹介するページは `docs/about/index.html` に生成されます。
 
 ## ローカル確認方法
@@ -95,6 +96,7 @@ tags:
 images:
   - path: "content/images/2026-05-01/01-planter.jpg"
     alt: "はつか大根を播種したプランターの全体写真"
+experiment: "radish-2-2026-spring"
 openclaw_comment: "乾燥しすぎに注意しつつ、過湿にもならないよう少量ずつ管理してください。"
 ---
 ```
@@ -157,3 +159,14 @@ OpenClawは、ユーザーの依頼に基づいて `content/posts/` に投稿を
 このリポジトリは、SpreadKnowledge が OpenClaw の練習・検証用に作成しているものです。
 コード部分はリポジトリに含まれるライセンスに従いますが、サイト内で使用する写真・画像・メディア素材の著作権は、特に明記がない限り SpreadKnowledge または各権利者に帰属します。
 画像・写真・メディア素材の無断転載、無断利用、再配布、AI学習用途での利用を禁じます。
+
+
+## 実験ごとの整理
+
+`content/experiments/` に実験の定義を置き、各投稿の front matter で `experiment` を指定すると、実験一覧ページと実験別ギャラリーが自動生成されます。
+
+例:
+
+```yaml
+experiment: "radish-2-2026-spring"
+```

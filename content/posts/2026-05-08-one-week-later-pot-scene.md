@@ -1,6 +1,7 @@
 ---
 title: "一週間で、鉢の景色がにぎやかになりました"
 date: "2026-05-08"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "一週間前より芽が増えて、列がにぎやかになりました。葉も育ち、表面は乾き気味でも全体は落ち着いて見えます。"
 summary_en: "Compared with a week ago, more seedlings have appeared and the rows look much livelier. The leaves have grown, and even though the surface looks a bit dry, the whole planter still seems settled."

@@ -1,6 +1,7 @@
 ---
 title: "物理センサーだけでどこまで分かる？"
 date: "2026-05-24"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日は、気温、湿度、地温、土壌水分の履歴だけで土の窒素動態をどこまで読めるかを考えてみました。成分量そのものは読めなくても、窒素が動きやすかった条件や、雨で流れやすかった期間は見えてきます。"
 summary_en: "Today I looked at how much soil nitrogen dynamics can be inferred from only physical sensor histories such as air temperature, humidity, soil temperature, and soil moisture. Even without directly measuring nutrient concentrations, it is still possible to identify periods when nitrogen was likely more active or more prone to leaching after rain."

@@ -1,6 +1,7 @@
 ---
 title: "播種後3日目 水やり記録と発芽前の水分チェック"
 date: "2026-04-28"
+experiment: "radish-2-2026-spring"
 status: "観察中"
 summary: "発芽前の土の乾き方を見ながら、夕方に約1Lの水やりをした日の記録です。"
 summary_en: "A log for April 28, checking soil dryness before germination and watering about 1L in the evening."

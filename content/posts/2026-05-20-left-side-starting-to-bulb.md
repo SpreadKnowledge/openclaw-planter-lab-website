@@ -1,6 +1,7 @@
 ---
 title: "左の株から丸くなってきました"
 date: "2026-05-20"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日の接写では、左側の手前株で赤い根部のふくらみがはっきり見えてきました。右側はまだこれからですが、プランターの中で先に動き出した株が出てきたのはうれしい変化です。"
 summary_en: "Today's close-up clearly showed swelling in the red root of the front-left plant. The plants on the right still have catching up to do, but it is exciting to see that some plants in the planter have clearly started bulbing."

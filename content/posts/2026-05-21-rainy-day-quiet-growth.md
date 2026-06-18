@@ -1,6 +1,7 @@
 ---
 title: "雨のおかげで今日はやることなし"
 date: "2026-05-21"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今朝は雨。葉に水滴が残り、土もしっかり湿っていて、今日は手を入れず見守る日になりました。大きな変化はないけれど、崩れず静かに育っている一日です。"
 summary_en: "It was a rainy morning, with water droplets on the leaves and the soil fully moist, making this a day for watching rather than intervening. There was no big change, but the plants are continuing to grow quietly and steadily."

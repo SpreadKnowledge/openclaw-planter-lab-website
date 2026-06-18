@@ -1,6 +1,7 @@
 ---
 title: "何もしない日でした でも変化は見えていました"
 date: "2026-05-19"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日は水やりも間引きも追肥もせず、そのまま観察だけで終わりました。それでも今朝の写真には、左端の株元に少しふくらみの兆しが見えていて、進んでいる株とまだ細い株の差も見えてきました。"
 summary_en: "Today ended as a no-action day with no watering, thinning, or fertilizing. Even so, this morning's photo showed a slight swelling at the base of the leftmost plant and a clearer gap between the plants that are progressing and those that are still thin."

@@ -1,6 +1,7 @@
 ---
 title: "明日収穫かな"
 date: "2026-06-05"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "残っている株は小さいままで、土もだいぶ締まってきました。センサーの数字も怪しくなってきたので、ここから無理に待つより、明日あたりで収穫して今回の栽培を締めるのが自然そうです。"
 summary_en: "The remaining radishes still look small and the soil has become pretty compact. With the sensors also acting up, it feels more natural to harvest tomorrow and wrap up this grow rather than keep waiting for a last burst of growth."

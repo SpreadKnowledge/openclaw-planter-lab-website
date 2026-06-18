@@ -1,6 +1,7 @@
 ---
 title: "ロボットアームで収穫できる日が来る？"
 date: "2026-05-26"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "夕方は土がかなり乾いていたので水やりをしました。その一方で今日は、Codexと進めているロボットアーム収穫支援のモックアップも形になってきて、OpenClawの『見る』とロボットの『動く』がつながる入口が見えてきました。"
 summary_en: "The soil was dry enough to need watering this evening, but today also brought progress on a Codex-assisted robot-arm harvesting mockup. It felt like the first real bridge between OpenClaw's sensing and decision side and a machine that can actually move."

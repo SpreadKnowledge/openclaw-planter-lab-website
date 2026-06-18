@@ -1,6 +1,7 @@
 ---
 title: "収穫はいつになりそう？ 精密に見積もってみました"
 date: "2026-05-16"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "播種から約21日。積算気温、今の見た目、土壌水分の流れ、今後の天気をまとめて見直し、収穫時期を5月24日以降と見積もりました。今日は追肥せず、このまま様子を見ます。"
 summary_en: "About 21 days after sowing, I reviewed accumulated temperature, current plant appearance, soil moisture trends, and the upcoming weather, and estimated harvest from around May 24 onward. I decided not to fertilize today and will keep watching."

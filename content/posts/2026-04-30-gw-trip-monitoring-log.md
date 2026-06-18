@@ -1,6 +1,7 @@
 ---
 title: "播種後5日目 GWの帰省中でも今は見守りで大丈夫そうです"
 date: "2026-04-30"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "GWで帰省中ですが、今の時期は無理に手を入れず見守るのがよさそうと分かって安心できた一日でした。"
 summary_en: "While away during Golden Week, it was reassuring to learn that this is a good time to simply watch and not intervene."

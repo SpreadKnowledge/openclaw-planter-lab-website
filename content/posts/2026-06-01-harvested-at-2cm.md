@@ -1,6 +1,7 @@
 ---
 title: "いよいよ収穫も大詰めで栽培も終盤へ"
 date: "2026-06-01"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日は太さ2cmほどまで育った二十日大根を2つ収穫しました。全体はきれいに揃わなかったものの、ちゃんと収穫までたどり着けて、今回の栽培が一区切りに近づいた感じがしています。"
 summary_en: "Today I harvested two radishes that had grown to about 2 cm in diameter. Not every plant sized up evenly, but reaching an actual harvest still made this grow feel like it was finally approaching a proper milestone."

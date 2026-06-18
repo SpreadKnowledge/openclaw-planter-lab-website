@@ -1,6 +1,7 @@
 ---
 title: "播種後9日目 画像ちょっとおかしい？でも芽は元気そう"
 date: "2026-05-04"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "昨夜の雨のあとも土の水分はまだ残っていて、芽の流れも悪くなさそうでした。今日はカメラ画像のブロック崩れっぽい乱れも少し気になりました。"
 summary_en: "After last night's rain, the soil still seemed to hold enough moisture and the seedlings looked generally fine. Today, some blocky artifacts in the camera image also stood out."

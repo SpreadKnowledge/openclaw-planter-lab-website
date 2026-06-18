@@ -1,6 +1,7 @@
 ---
 title: "間引いたら風が通ってきた"
 date: "2026-05-12"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日は混み合っていたところを間引いて、夕方には土へやさしく水を入れました。少し広めに空いた場所もありますが、全体としてはこれから育ちやすい並びになってきました。"
 summary_en: "Today the crowded spots were thinned, and in the evening the soil was watered gently. Some gaps ended up a little wider than planned, but overall the row now looks easier for the seedlings to keep growing." 

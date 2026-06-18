@@ -1,6 +1,7 @@
 ---
 title: "播種後10日目 ちょっとひょろっとしてるけど大丈夫？"
 date: "2026-05-05"
+experiment: "radish-2-2026-spring"
 status: "順調"
 summary: "今日は間引きと水やりをしたあと、苗を近くで見ると少し徒長気味でした。でも双葉の色はよく、全体としては元気そうでした。"
 summary_en: "After thinning and watering today, the seedlings looked slightly leggy up close. Still, the cotyledons looked healthy and the overall condition seemed good."
