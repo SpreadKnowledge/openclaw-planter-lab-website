@@ -422,6 +422,20 @@ def render_quick_links(links: list[tuple[str, str]], depth: int, variant: str = 
     return '<nav class="quick-links" aria-label="Page links">' + "".join(items) + "</nav>"
 
 
+
+def render_page_kicker(section: str, current: str, parent_label: str | None = None, parent_href: str | None = None, depth: int = 0) -> str:
+    parent_html = ""
+    if parent_label and parent_href:
+        url = parent_href if parent_href.startswith(("http://", "https://", "/", "#")) else relative_prefix(depth) + parent_href
+        parent_html = f'<a href="{html.escape(url, quote=True)}">{html.escape(parent_label)}</a><span>/</span>'
+    return (
+        '<nav class="page-kicker" aria-label="Current section">'
+        f'<span>{html.escape(section)}</span>'
+        f'{parent_html}'
+        f'<strong>{html.escape(current)}</strong>'
+        '</nav>'
+    )
+
 def render_gallery_item_card(item: dict[str, Any], depth: int, show_experiment: bool = True) -> str:
     image = item["image"]
     post = item["post"]
@@ -499,7 +513,7 @@ def render_experiment_card(experiment: dict[str, Any], depth: int = 0, link_targ
 """
 
 
-def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
+def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja", section: str = "home") -> str:
     prefix = relative_prefix(depth)
     css = prefix + "assets/css/style.css"
     js = prefix + "assets/js/site.js"
@@ -509,6 +523,18 @@ def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
     gallery_url = prefix + "gallery/"
     about_url = prefix + "about/"
     en_url = prefix + "en/"
+    nav_items = [
+        ("home", "Home", home_url),
+        ("blog", "Blog", posts_url),
+        ("experiments", "Experiments", experiments_url),
+        ("gallery", "Gallery", gallery_url),
+        ("about", "About", about_url),
+        ("english", "English", en_url),
+    ]
+    nav_html = "".join(
+        f'<a href="{href}"{' aria-current="page"' if key == section else ""}>{label}</a>'
+        for key, label, href in nav_items
+    )
     return f"""<!doctype html>
 <html lang="{lang}">
 <head>
@@ -519,7 +545,7 @@ def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
   <link rel="stylesheet" href="{css}">
   <script src="{js}" defer></script>
 </head>
-<body>
+<body class="theme-{html.escape(section)}">
   <header class="site-header">
     <a class="brand" href="{home_url}" aria-label="{SITE_TITLE}">
       <span class="brand-mark">OC</span>
@@ -529,12 +555,7 @@ def page_shell(title: str, body: str, depth: int = 0, lang: str = "ja") -> str:
       </span>
     </a>
     <nav class="site-nav" aria-label="Primary navigation">
-      <a href="{home_url}">Home</a>
-      <a href="{posts_url}">Blog</a>
-      <a href="{experiments_url}">Experiments</a>
-      <a href="{gallery_url}">Gallery</a>
-      <a href="{about_url}">About</a>
-      <a href="{en_url}">English</a>
+      {nav_html}
     </nav>
   </header>
   <main>
@@ -668,7 +689,7 @@ def write_index(posts: list[dict[str, Any]], experiments: list[dict[str, Any]]) 
       </a>
     </section>
 """
-    (DOCS_DIR / "index.html").write_text(page_shell(SITE_TITLE, body), encoding="utf-8")
+    (DOCS_DIR / "index.html").write_text(page_shell(SITE_TITLE, body, section="home"), encoding="utf-8")
 
 
 def write_about_page() -> None:
@@ -720,17 +741,17 @@ def write_about_page() -> None:
 """
     output = DOCS_DIR / "about" / "index.html"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(page_shell("この実験について", body, depth=1), encoding="utf-8")
+    output.write_text(page_shell("この実験について", body, depth=1, section="about"), encoding="utf-8")
 
 
 def write_posts_index(posts: list[dict[str, Any]]) -> None:
     cards = "\n".join(render_post_card(post, depth=1) for post in posts)
     body = f"""
     <section class="page-title">
+      {render_page_kicker('Blog', '投稿一覧', depth=1)}
       <p class="eyebrow">Blog Archive</p>
       <h1>ブログ一覧</h1>
       <p>OpenClaw栽培実験室の観察ログを新しい順に並べています。各投稿から所属実験も辿れます。</p>
-      {render_quick_links([('実験一覧を見る', 'experiments/'), ('ギャラリーを見る', 'gallery/'), ('ホームへ戻る', 'index.html')], 1)}
     </section>
     <section class="post-list">
 {cards}
@@ -738,17 +759,17 @@ def write_posts_index(posts: list[dict[str, Any]]) -> None:
 """
     output = DOCS_DIR / "posts" / "index.html"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(page_shell("投稿一覧", body, depth=1), encoding="utf-8")
+    output.write_text(page_shell("投稿一覧", body, depth=1, section="blog"), encoding="utf-8")
 
 
 def write_experiments_index(experiments: list[dict[str, Any]]) -> None:
     cards = "\n".join(render_experiment_card(experiment, depth=1) for experiment in experiments)
     body = f"""
     <section class="page-title">
+      {render_page_kicker('Experiments', '実験一覧', depth=1)}
       <p class="eyebrow">Experiments</p>
       <h1>実験一覧</h1>
       <p>栽培ログとギャラリーを、実験ごとにまとめて見返せるページです。</p>
-      {render_quick_links([('最新のブログを見る', 'posts/'), ('実験別ギャラリーへ', 'gallery/'), ('ホームへ戻る', 'index.html')], 1)}
     </section>
     <section class="experiment-grid">
 {cards}
@@ -756,7 +777,7 @@ def write_experiments_index(experiments: list[dict[str, Any]]) -> None:
 """
     output = DOCS_DIR / "experiments" / "index.html"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(page_shell("実験一覧", body, depth=1), encoding="utf-8")
+    output.write_text(page_shell("実験一覧", body, depth=1, section="experiments"), encoding="utf-8")
 
 
 def write_experiment_pages(experiments: list[dict[str, Any]]) -> None:
@@ -774,6 +795,7 @@ def write_experiment_pages(experiments: list[dict[str, Any]]) -> None:
         )
         body = f"""
     <section class="page-title experiment-page-title">
+      {render_page_kicker('Experiments', experiment['title'], '実験一覧', 'experiments/', depth=2)}
       <p class="eyebrow">Experiment Record</p>
       <h1>{html.escape(experiment['title'])}</h1>
       <div class="meta-row">
@@ -786,7 +808,6 @@ def write_experiment_pages(experiments: list[dict[str, Any]]) -> None:
         <span>{experiment['image_count']}枚の画像</span>
         <span>{html.escape(experiment['crop'])}</span>
       </div>
-      {render_quick_links([('この実験の投稿へ', '#posts'), ('この実験の画像へ', '#gallery'), ('実験一覧へ戻る', 'experiments/')], 2)}
     </section>
 
     <section class="section-grid experiment-overview-grid">
@@ -823,7 +844,7 @@ def write_experiment_pages(experiments: list[dict[str, Any]]) -> None:
 """
         output = DOCS_DIR / "experiments" / experiment["slug"] / "index.html"
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(page_shell(experiment["title"], body, depth=2), encoding="utf-8")
+        output.write_text(page_shell(experiment["title"], body, depth=2, section="experiments"), encoding="utf-8")
 
 
 def write_gallery_index(posts: list[dict[str, Any]], experiments: list[dict[str, Any]]) -> None:
@@ -839,10 +860,10 @@ def write_gallery_index(posts: list[dict[str, Any]], experiments: list[dict[str,
     )
     body = f"""
     <section class="page-title">
+      {render_page_kicker('Gallery', '画像ギャラリー', depth=1)}
       <p class="eyebrow">Gallery Archive</p>
       <h1>画像ギャラリー</h1>
       <p>まず実験ごとに入り、その中で写真を辿れる構成にしました。下には全体の新しい順も残しています。</p>
-      {render_quick_links([('実験一覧へ', 'experiments/'), ('ブログ一覧へ', 'posts/'), ('ホームへ戻る', 'index.html')], 1)}
     </section>
 
     <section class="section-heading section-heading-row">
@@ -866,7 +887,7 @@ def write_gallery_index(posts: list[dict[str, Any]], experiments: list[dict[str,
 """
     output = DOCS_DIR / "gallery" / "index.html"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(page_shell("画像ギャラリー", body, depth=1), encoding="utf-8")
+    output.write_text(page_shell("画像ギャラリー", body, depth=1, section="gallery"), encoding="utf-8")
 
 
 def write_experiment_gallery_pages(experiments: list[dict[str, Any]]) -> None:
@@ -878,6 +899,7 @@ def write_experiment_gallery_pages(experiments: list[dict[str, Any]]) -> None:
         )
         body = f"""
     <section class="page-title experiment-page-title">
+      {render_page_kicker('Gallery', experiment['title'] + 'の画像一覧', '画像ギャラリー', 'gallery/', depth=3)}
       <p class="eyebrow">Experiment Gallery</p>
       <h1>{html.escape(experiment['title'])}の画像一覧</h1>
       <div class="meta-row">
@@ -885,7 +907,6 @@ def write_experiment_gallery_pages(experiments: list[dict[str, Any]]) -> None:
         <span>{html.escape(experiment['period_label'])}</span>
       </div>
       <p>{html.escape(experiment['summary'])}</p>
-      {render_quick_links([('実験ページへ戻る', f'experiments/{experiment["slug"]}/'), ('実験一覧へ', 'experiments/'), ('ギャラリートップへ', 'gallery/')], 3)}
     </section>
     <section class="gallery-detail-grid">
 {gallery_html}
@@ -893,7 +914,7 @@ def write_experiment_gallery_pages(experiments: list[dict[str, Any]]) -> None:
 """
         output = DOCS_DIR / "gallery" / "experiments" / experiment["slug"] / "index.html"
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(page_shell(f"{experiment['title']}の画像一覧", body, depth=3), encoding="utf-8")
+        output.write_text(page_shell(f"{experiment['title']}の画像一覧", body, depth=3, section="gallery"), encoding="utf-8")
 
 
 def write_post_pages(posts: list[dict[str, Any]]) -> None:
@@ -914,7 +935,7 @@ def write_post_pages(posts: list[dict[str, Any]]) -> None:
         body = f"""
     <article class="article">
       <header class="article-header">
-        <a class="text-link" href="../">投稿一覧へ</a>
+        {render_page_kicker('Blog', post['title'], '投稿一覧', 'posts/', depth=2)}
         <div class="meta-row">
           <time datetime="{html.escape(post['date'])}">{html.escape(post['date_label'])}</time>
           <span class="status-pill {status_class(post['status'])}">{html.escape(post['status'])}</span>
@@ -923,7 +944,6 @@ def write_post_pages(posts: list[dict[str, Any]]) -> None:
         <p>{html.escape(post['summary'])}</p>
         {render_experiment_link(experiment, 2)}
         {render_tags(post['tags'])}
-        {render_quick_links([('投稿一覧へ', 'posts/'), ('実験ページへ', f'experiments/{experiment["slug"]}/') if experiment is not None else ('ホームへ', 'index.html'), ('この実験の画像へ', f'gallery/experiments/{experiment["slug"]}/') if experiment is not None else ('ギャラリーへ', 'gallery/')], 2)}
       </header>
       <div class="article-body">
 {post['body_html']}
@@ -943,7 +963,7 @@ def write_post_pages(posts: list[dict[str, Any]]) -> None:
 """
         output = DOCS_DIR / "posts" / post["slug"] / "index.html"
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(page_shell(post["title"], body, depth=2), encoding="utf-8")
+        output.write_text(page_shell(post["title"], body, depth=2, section="blog"), encoding="utf-8")
 
 
 def write_legacy_redirects() -> None:
@@ -961,7 +981,7 @@ def write_legacy_redirects() -> None:
 """
         output = DOCS_DIR / "posts" / slug / "index.html"
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(page_shell("ページを移動しました", body, depth=2), encoding="utf-8")
+        output.write_text(page_shell("ページを移動しました", body, depth=2, section="blog"), encoding="utf-8")
 
 
 def write_english_page() -> None:
@@ -998,7 +1018,7 @@ def write_english_page() -> None:
 """
     output = DOCS_DIR / "en" / "index.html"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(page_shell(SITE_TITLE_EN, body, depth=1, lang="en"), encoding="utf-8")
+    output.write_text(page_shell(SITE_TITLE_EN, body, depth=1, lang="en", section="english"), encoding="utf-8")
 
 
 def copy_assets() -> None:
