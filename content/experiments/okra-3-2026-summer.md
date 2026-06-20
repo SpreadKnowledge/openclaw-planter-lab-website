@@ -5,7 +5,7 @@ end_date: ""
 status: "進行中"
 crop: "島オクラ"
 summary: "島オクラ2株の定植から、センサー観察とOpenClawによる水やり支援までを記録する夏の栽培実験"
-cover_image: "content/images/2026-06-20/03-okra-planted-overview.jpg"
+cover_image: "content/images/2026-06-20/04-okra-planted-overview.jpg"
 cover_alt: "2026年6月20日に定植した島オクラ2株と自作の散水ライン"
 ---
 2026年6月20日から始めた、島オクラの栽培記録です。今回はプランターの土作りからやり直し、発酵牛糞、パーライト、培養土を混ぜて、島オクラのポット苗を2株定植しました。
