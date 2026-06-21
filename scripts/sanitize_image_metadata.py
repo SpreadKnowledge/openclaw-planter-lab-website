@@ -2,7 +2,7 @@
 """Strip metadata from public images in this repository.
 
 Uses only the Python standard library.
-- JPEG: strips APP1 Exif segments
+- JPEG: strips APP1 Exif and XMP segments
 - PNG: strips eXIf / tEXt / iTXt / zTXt chunks
 """
 
@@ -55,7 +55,10 @@ def strip_jpeg_exif(data: bytes) -> tuple[bytes, bool]:
             out.extend(data[i:])
             break
         payload = data[j + 3 : seg_end]
-        if marker == 0xE1 and payload.startswith(b"Exif\x00\x00"):
+        if marker == 0xE1 and (
+            payload.startswith(b"Exif\x00\x00")
+            or payload.startswith(b"http://ns.adobe.com/xap/1.0/\x00")
+        ):
             changed = True
         else:
             out.extend(data[i:seg_end])
