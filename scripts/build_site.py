@@ -20,6 +20,7 @@ CONTENT_DIR = ROOT / "content"
 POSTS_DIR = CONTENT_DIR / "posts"
 EXPERIMENTS_DIR = CONTENT_DIR / "experiments"
 IMAGES_DIR = CONTENT_DIR / "images"
+DATA_DIR = CONTENT_DIR / "data"
 ABOUT_PATH = CONTENT_DIR / "about.md"
 DOCS_DIR = ROOT / "docs"
 TEMPLATE_DIR = ROOT / "templates"
@@ -112,10 +113,41 @@ def inline_markdown(text: str) -> str:
     return escaped
 
 
+def split_table_row(line: str) -> list[str]:
+    stripped = line.strip().strip("|")
+    return [cell.strip() for cell in stripped.split("|")]
+
+
+def is_table_separator(line: str) -> bool:
+    cells = split_table_row(line)
+    if not cells:
+        return False
+    return all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells)
+
+
+def render_markdown_table(rows: list[str]) -> str:
+    headers = split_table_row(rows[0])
+    body_rows = [split_table_row(row) for row in rows[2:]]
+    head_html = "".join(f"<th>{inline_markdown(cell)}</th>" for cell in headers)
+    body_html = []
+    for row in body_rows:
+        padded = row + [""] * (len(headers) - len(row))
+        body_html.append(
+            "<tr>" + "".join(f"<td>{inline_markdown(cell)}</td>" for cell in padded[: len(headers)]) + "</tr>"
+        )
+    return (
+        '<div class="table-scroll"><table>'
+        f"<thead><tr>{head_html}</tr></thead>"
+        f"<tbody>{''.join(body_html)}</tbody>"
+        "</table></div>"
+    )
+
+
 def markdown_to_html(markdown: str) -> str:
     blocks: list[str] = []
     paragraph: list[str] = []
     list_items: list[str] = []
+    table_rows: list[str] = []
 
     def flush_paragraph() -> None:
         if paragraph:
@@ -127,13 +159,39 @@ def markdown_to_html(markdown: str) -> str:
             blocks.append("<ul>" + "".join(list_items) + "</ul>")
             list_items.clear()
 
-    for raw_line in markdown.splitlines():
-        line = raw_line.rstrip()
+    def flush_table() -> None:
+        if table_rows:
+            blocks.append(render_markdown_table(table_rows))
+            table_rows.clear()
+
+    lines = markdown.splitlines()
+    index = 0
+    while index < len(lines):
+        line = lines[index].rstrip()
         stripped = line.strip()
+
+        if table_rows:
+            if stripped.startswith("|") and "|" in stripped[1:]:
+                table_rows.append(stripped)
+                index += 1
+                continue
+            flush_table()
 
         if not stripped:
             flush_paragraph()
             flush_list()
+            index += 1
+            continue
+
+        if (
+            stripped.startswith("|")
+            and index + 1 < len(lines)
+            and is_table_separator(lines[index + 1].strip())
+        ):
+            flush_paragraph()
+            flush_list()
+            table_rows.extend([stripped, lines[index + 1].strip()])
+            index += 2
             continue
 
         heading_match = re.match(r"^(#{1,4})\s+(.+)$", stripped)
@@ -144,20 +202,23 @@ def markdown_to_html(markdown: str) -> str:
             blocks.append(
                 f"<h{level}>{inline_markdown(heading_match.group(2))}</h{level}>"
             )
+            index += 1
             continue
 
         if stripped.startswith("- "):
             flush_paragraph()
             list_items.append(f"<li>{inline_markdown(stripped[2:].strip())}</li>")
+            index += 1
             continue
 
         flush_list()
         paragraph.append(stripped)
+        index += 1
 
+    flush_table()
     flush_paragraph()
     flush_list()
     return "\n".join(blocks)
-
 
 def relative_prefix(depth: int) -> str:
     return "../" * depth
@@ -1046,6 +1107,16 @@ def copy_assets() -> None:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
 
+    data_dest = DOCS_DIR / "assets" / "data"
+    data_dest.mkdir(parents=True, exist_ok=True)
+    if DATA_DIR.exists():
+        for source in DATA_DIR.rglob("*"):
+            if source.is_file():
+                relative = source.relative_to(DATA_DIR)
+                target = data_dest / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+
     profile_dest = image_dest / "profile"
     profile_dest.mkdir(parents=True, exist_ok=True)
     profile_sources = {
@@ -1067,9 +1138,11 @@ def prepare_docs() -> None:
     (DOCS_DIR / "gallery" / "experiments").mkdir(parents=True, exist_ok=True)
     (DOCS_DIR / "assets" / "js").mkdir(parents=True, exist_ok=True)
     (DOCS_DIR / "assets" / "images").mkdir(parents=True, exist_ok=True)
+    (DOCS_DIR / "assets" / "data").mkdir(parents=True, exist_ok=True)
     (DOCS_DIR / ".nojekyll").write_text("", encoding="utf-8")
     (DOCS_DIR / "assets" / "js" / ".gitkeep").write_text("", encoding="utf-8")
     (DOCS_DIR / "assets" / "images" / ".gitkeep").write_text("", encoding="utf-8")
+    (DOCS_DIR / "assets" / "data" / ".gitkeep").write_text("", encoding="utf-8")
 
 
 def main() -> None:
