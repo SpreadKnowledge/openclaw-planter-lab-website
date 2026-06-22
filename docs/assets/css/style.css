@@ -858,6 +858,49 @@ h3 {
   padding-left: 1.2rem;
 }
 
+.table-scroll {
+  width: 100%;
+  margin: 24px 0;
+  overflow-x: auto;
+  border: 1px solid var(--color-line);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.article-body table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+
+.article-body th,
+.article-body td {
+  padding: 12px 14px;
+  border-right: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.article-body th:last-child,
+.article-body td:last-child {
+  border-right: 0;
+}
+
+.article-body tr:last-child td {
+  border-bottom: 0;
+}
+
+.article-body th {
+  background: color-mix(in srgb, var(--theme-accent) 12%, white);
+  color: var(--color-ink);
+  font-weight: 800;
+}
+
+.article-body td {
+  color: #314c58;
+}
+
 .article-gallery {
   margin-top: 42px;
 }
