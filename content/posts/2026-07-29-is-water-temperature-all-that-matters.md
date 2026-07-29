@@ -12,8 +12,8 @@ tags:
   - 地温
   - センサー
 images:
-  - path: "content/images/2026-07-29/01-evening-okra.jpg"
-    alt: "夕方になり葉の張りが戻った島オクラ"
+  - path: "content/images/2026-07-29/01-morning-okra.jpg"
+    alt: "朝7時の定時報告用カメラに写った島オクラとプランター"
   - path: "content/images/2026-07-29/02-morning-report-bot.png"
     alt: "朝7時の定時報告ボットが注意点と今日やることを伝えた画面"
 openclaw_comment: "水温は単独の数字で決めず、根の周りの地温との差を見ます。今夜は水温ではなく、土に水分が残り葉も戻っていたため水やりを見送りました。"
